@@ -31,7 +31,7 @@ pipeline {
         script {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
             sh """
-              docker run --rm -it -v $M2_PATH:/root/.m2 -v $PWD/backend:/work -w /work maven:3-jdk-8-alpine mvn package
+              docker run --rm -i -v $M2_PATH:/root/.m2 -v $PWD/backend:/work -w /work maven:3-jdk-8-alpine mvn package
               
               docker build -t http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:$BUILD_NUMBER ./backend
               docker tag http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:$BUILD_NUMBER http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:latest
@@ -47,8 +47,8 @@ pipeline {
         script {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
             sh """
-              docker run --rm -it -v $NPM_PATH:/root/.npm -v $PWD/frontend:/work -w /work node npm i
-              docker run --rm -it -v $NPM_PATH:/root/.npm -v $PWD/frontend:/work -w /work node npm run build
+              docker run --rm -i -v $NPM_PATH:/root/.npm -v $PWD/frontend:/work -w /work node npm i
+              docker run --rm -i -v $NPM_PATH:/root/.npm -v $PWD/frontend:/work -w /work node npm run build
 
               docker build -t http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:$BUILD_NUMBER ./frontend
               docker tag http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:$BUILD_NUMBER http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:latest
