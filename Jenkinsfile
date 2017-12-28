@@ -31,7 +31,7 @@ pipeline {
         script {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
             sh """
-              docker run -u `id -u`:`id -g` --rm -i -v $M2_PATH:/root/.m2 -v $WORKSPACE/backend:/work -w /work maven:3-jdk-8-alpine mvn package
+              docker run -u `id -u`:`id -g` --rm -i -v $M2_PATH:/home/jenkins/.m2 -v $WORKSPACE/backend:/work -w /work maven:3-jdk-8-alpine mvn package
               
               docker build -t http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER} ./backend
               docker tag http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER} http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:latest
@@ -47,8 +47,8 @@ pipeline {
         script {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
             sh """
-              docker run -u `id -u`:`id -g` --rm -i -v $NPM_PATH:/root/.npm -v $WORKSPACE/frontend:/work -w /work node npm i
-              docker run -u `id -u`:`id -g` --rm -i -v $NPM_PATH:/root/.npm -v $WORKSPACE/frontend:/work -w /work node npm run build
+              docker run -u `id -u`:`id -g` --rm -i -v $NPM_PATH:/home/jenkins/.npm -v $WORKSPACE/frontend:/work -w /work node npm i
+              docker run -u `id -u`:`id -g` --rm -i -v $NPM_PATH:/home/jenkins/.npm -v $WORKSPACE/frontend:/work -w /work node npm run build
 
               docker build -t http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER} ./frontend
               docker tag http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER} http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:latest
