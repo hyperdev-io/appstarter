@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>bigboat.cloud</groupId>
+    <artifactId>appstarter-backend</artifactId>
+    <version>0.1.0</version>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.9.RELEASE</version>
+    </parent>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <sonar.host.url>http://www.sonar.observ.bigboat.cloud:9000</sonar.host.url>
+        <sonar.scm.disabled>true</sonar.scm.disabled>
+    </properties>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <scm>
+        <url>scm:git:git@www.gitlab.observ.bigboat.cloud:appstarter/appstarter.git</url>
+        <connection>scm:git:git@www.gitlab.observ.bigboat.cloud:appstarter/appstarter.git</connection>
+        <developerConnection>scm:git:git@www.gitlab.observ.bigboat.cloud:appstarter/appstarter.git</developerConnection>
+    </scm>
+    <distributionManagement>
+        <repository>
+            <id>releases</id>
+            <name>Internal Releases</name>
+            <url>http://admin:admin123@www.nexus.observ.bigboat.cloud:8081/repository/maven-releases</url>
+        </repository>
+    </distributionManagement>
+    <repositories>
+        <repository>
+            <id>nexus-isd-repository</id>
+            <name>isd nexus proxy plugin repo</name>
+            <url>http://www.nexus.observ.bigboat.cloud:8081/repository/maven-group/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>nexus-isd-plugin-repository</id>
+            <name>isd nexus proxy plugin repo</name>
+            <url>http://www.nexus.observ.bigboat.cloud:8081/repository/maven-group/</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

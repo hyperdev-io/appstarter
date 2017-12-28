@@ -1,0 +1,15 @@
+version: '2.0'
+
+services:
+  backend:
+    image: http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${version}
+    ports:
+      - 8080:8080
+  frontend:
+    image: http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${version}
+    ports:
+      - 5000:5000
+    links:
+      - backend
+    environment:
+      REACT_APP_API: http://backend:8080/
