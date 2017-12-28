@@ -59,15 +59,15 @@
     </distributionManagement>
     <repositories>
         <repository>
-            <id>nexus-isd-repository</id>
-            <name>isd nexus proxy plugin repo</name>
+            <id>nexus-repository</id>
+            <name>nexus proxy plugin repo</name>
             <url>http://www.nexus.observ.bigboat.cloud:8081/repository/maven-group/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
-            <id>nexus-isd-plugin-repository</id>
-            <name>isd nexus proxy plugin repo</name>
+            <id>nexus-plugin-repository</id>
+            <name>nexus proxy plugin repo</name>
             <url>http://www.nexus.observ.bigboat.cloud:8081/repository/maven-group/</url>
         </pluginRepository>
     </pluginRepositories>
