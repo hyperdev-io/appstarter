@@ -22,7 +22,7 @@ pipeline {
       steps {
         script {
           checkout scm
-          sh "echo version=$${env.BUILD_NUMBER} > .env"
+          sh "echo version=${env.BUILD_NUMBER} > .env"
         }
       }
     }
@@ -34,8 +34,8 @@ pipeline {
               docker run --rm -i -v $M2_PATH:/root/.m2 -v $WORKSPACE/backend:/work -w /work maven:3-jdk-8-alpine mvn package
               
               docker build -t http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER} ./backend
-              docker tag http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:$${env.BUILD_NUMBER} http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:latest
-              docker push http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:$${env.BUILD_NUMBER}
+              docker tag http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER} http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:latest
+              docker push http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER}
               docker push http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:latest
             """
           }
@@ -50,9 +50,9 @@ pipeline {
               docker run --rm -i -v $NPM_PATH:/root/.npm -v $WORKSPACE/frontend:/work -w /work node npm i
               docker run --rm -i -v $NPM_PATH:/root/.npm -v $WORKSPACE/frontend:/work -w /work node npm run build
 
-              docker build -t http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:$${env.BUILD_NUMBER} ./frontend
-              docker tag http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:$${env.BUILD_NUMBER} http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:latest
-              docker push http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:$${env.BUILD_NUMBER}
+              docker build -t http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER} ./frontend
+              docker tag http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER} http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:latest
+              docker push http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER}
               docker push http://www.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:latest
             """
           }
