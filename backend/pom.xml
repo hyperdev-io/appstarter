@@ -31,7 +31,7 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <sonar.host.url>http://www.sonar.uturn.bigboat.cloud:9000</sonar.host.url>
+        <sonar.host.url>http://www.sonarqube.uturn.bigboat.cloud:9000</sonar.host.url>
         <sonar.jacoco.reportPaths>${project.build.directory}/coverage-reports/jacoco-ut.exec</sonar.jacoco.reportPaths>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.scm.disabled>true</sonar.scm.disabled>
