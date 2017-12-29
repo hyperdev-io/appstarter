@@ -8,7 +8,7 @@ pipeline {
     NPM_PATH            = '${HOME}/.npm'
     M2_PATH             = '${HOME}/.m2'
     SONAR_PATH          = '${HOME}/.sonar'
-    DASHBOARD_API_KEY   = '8a8edbab83fc7809765822e1ee7385c3'
+    DASHBOARD_API_KEY   = 'bb87e863c762140078c69dec5c7d36bf'
     DASHBOARD           = 'uturn.dashboard.bigboat.cloud'
     APPLICATION_NAME    = 'appstarter'
     INSTANCE_NAME       = "app-${env.BUILD_NUMBER}"
