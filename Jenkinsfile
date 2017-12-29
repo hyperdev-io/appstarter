@@ -25,7 +25,7 @@ pipeline {
 
           checkout scm
           sh "echo version=${env.BUILD_NUMBER} > .env"
-          sh 'echo backend_api_url=http://backend.${BIGBOAT_INSTANCE_NAME}.observ.bigboat.cloud:8080 >> .env'
+          sh 'echo backend_api_url=http://backend.\${BIGBOAT_INSTANCE_NAME}.observ.bigboat.cloud:8080 >> .env'
         }
       }
     }
@@ -34,7 +34,7 @@ pipeline {
         script {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
             sh """
-              docker run --rm -i -v $M2_PATH:/root/.m2 -v $WORKSPACE/backend:/work -w /work maven:3-jdk-8-alpine mvn package
+              docker run --rm -i -v $M2_PATH:/root/.m2 -v $WORKSPACE/backend:/work -w /work maven:3-jdk-8-alpine mvn package -DskipTests=true
               
               docker build -t repo.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER} ./backend
               docker tag repo.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER} repo.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:latest
@@ -57,6 +57,17 @@ pipeline {
               docker tag repo.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER} repo.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:latest
               docker push repo.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER}
               docker push repo.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:latest
+            """
+          }
+        }
+      }
+    }
+    stage('Quality backend') {
+      steps {
+        script {
+          wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+            sh """
+              docker run --rm -i -v $M2_PATH:/root/.m2 -v $WORKSPACE/backend:/work -w /work --net=host maven:3-jdk-8-alpine mvn test sonar:sonar
             """
           }
         }
