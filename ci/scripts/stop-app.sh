@@ -4,7 +4,7 @@ BASE_PATH="$1"
 set -e
 
 echo "[INFO] Stopping application instance ${INSTANCE_NAME}"
-curl -sS -XDELETE "http://$DASHBOARD/api/v2/instances/${INSTANCE_NAME}" -H "api-key:$DASHBOARD_API_KEY"
+curl -sS -XDELETE "https://jenkins:G75CdIxQgPrn@$DASHBOARD/api/v2/instances/${INSTANCE_NAME}" -H "api-key:$DASHBOARD_API_KEY"
 E_CODE=$?
 echo ""
 echo "========"
