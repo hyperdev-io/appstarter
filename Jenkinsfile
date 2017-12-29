@@ -61,6 +61,17 @@ pipeline {
         }
       }
     }
+    stage('Create complete docker-compose file') {
+      steps {
+        script {
+          wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+            sh """
+              docker-compose config > docker-compose.complete.yml
+            """
+          }
+        }
+      }
+    }
     stage('Start App') {
       steps {
         script {

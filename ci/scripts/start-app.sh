@@ -3,7 +3,7 @@ CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BASE_PATH="$1"
 set -e
 
-COMPOSE_FILE=$BASE_PATH/docker-compose.yml
+COMPOSE_FILE=$BASE_PATH/docker-compose.complete.yml
 echo -e "COMPOSE_FILE = $COMPOSE_FILE\n"
 
 echo "======================"
