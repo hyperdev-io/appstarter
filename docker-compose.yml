@@ -2,11 +2,11 @@ version: '2.0'
 
 services:
   backend:
-    image: repo.docker-registry.observ.bigboat.cloud:5000/appstarter-backend:${version}
+    image: repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-backend:${version}
     ports:
       - 8080:8080
   www:
-    image: repo.docker-registry.observ.bigboat.cloud:5000/appstarter-frontend:${version}
+    image: repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-frontend:${version}
     ports:
       - 80:80
     environment:
