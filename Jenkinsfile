@@ -11,7 +11,7 @@ pipeline {
     DASHBOARD_API_KEY   = '8a8edbab83fc7809765822e1ee7385c3'
     DASHBOARD           = 'observ.dashboard.observ.bigboat.cloud'
     APPLICATION_NAME    = 'appstarter'
-    INSTANCE_NAME       = 'app-${BUILD_NUMBER}'
+    INSTANCE_NAME       = "app-${env.BUILD_NUMBER}"
   }
   options {
     buildDiscarder(logRotator(numToKeepStr:'10'))
