@@ -120,14 +120,14 @@
         <repository>
             <id>nexus-repository</id>
             <name>nexus proxy plugin repo</name>
-            <url>http://www.nexus.observ.bigboat.cloud:8081/repository/maven-group/</url>
+            <url>http://www.nexus.observ.bigboat.cloud:8081/repository/maven-public/</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>nexus-plugin-repository</id>
             <name>nexus proxy plugin repo</name>
-            <url>http://www.nexus.observ.bigboat.cloud:8081/repository/maven-group/</url>
+            <url>http://www.nexus.observ.bigboat.cloud:8081/repository/maven-public/</url>
         </pluginRepository>
     </pluginRepositories>
 </project>
