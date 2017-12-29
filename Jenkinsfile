@@ -9,7 +9,7 @@ pipeline {
     M2_PATH             = '${HOME}/.m2'
     SONAR_PATH          = '${HOME}/.sonar'
     DASHBOARD_API_KEY   = '8a8edbab83fc7809765822e1ee7385c3'
-    DASHBOARD           = 'observ.dashboard.observ.bigboat.cloud'
+    DASHBOARD           = 'observ.dashboard.bigboat.cloud'
     APPLICATION_NAME    = 'appstarter'
     INSTANCE_NAME       = "app-${env.BUILD_NUMBER}"
   }
