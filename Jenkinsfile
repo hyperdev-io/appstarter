@@ -25,7 +25,7 @@ pipeline {
 
           checkout scm
           sh "echo version=${env.BUILD_NUMBER} > .env"
-          sh 'echo backend_api_url=http://backend.\${BIGBOAT_INSTANCE_NAME}.observ.bigboat.cloud:8080 >> .env'
+          sh 'echo backend_api_url=http://backend.\\\${BIGBOAT_INSTANCE_NAME}.observ.bigboat.cloud:8080 >> .env'
         }
       }
     }
