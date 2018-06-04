@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
-  apiURL = process.env.REACT_APP_API || `http://localhost:8080/`;
+  apiURL = `/api`;
 
   constructor(props, context) {
     super(props, context);
@@ -13,16 +13,15 @@ class App extends Component {
 
   loadGreetingFromServer() {
     fetch(this.apiURL)
-      .then(result=>result.json())
-      .then(data=>{
+      .then(result => result.json())
+      .then(data => {
         this.setState(data);
-      console.log(this.state.greeting);
-    }
-    )
+        console.log(this.state.greeting);
+      })
+      .catch(error => console.log("Could not connect to " + this.apiURL));
   }
 
   componentDidMount() {
-    
     this.loadGreetingFromServer();
   }
 

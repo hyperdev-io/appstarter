@@ -31,13 +31,14 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <sonar.host.url>http://www.sonarqube.uturn.bigboat.cloud:9000</sonar.host.url>
+        <sonar.host.url></sonar.host.url>
+        <nexus.repository></nexus.repository>
+        <nexus.distribution.repository></nexus.distribution.repository>
+        <maven.scm.url></maven.scm.url>
         <sonar.jacoco.reportPaths>${project.build.directory}/coverage-reports/jacoco-ut.exec</sonar.jacoco.reportPaths>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.scm.disabled>true</sonar.scm.disabled>
     </properties>
-
-
     <build>
         <plugins>
             <plugin>
@@ -105,29 +106,29 @@
     </build>
 
     <scm>
-        <url>scm:git:git@www.gitlab.uturn.bigboat.cloud:appstarter/appstarter.git</url>
-        <connection>scm:git:git@www.gitlab.uturn.bigboat.cloud:appstarter/appstarter.git</connection>
-        <developerConnection>scm:git:git@www.gitlab.uturn.bigboat.cloud:appstarter/appstarter.git</developerConnection>
+        <url>${maven.scm.url}</url>
+        <connection>${maven.scm.url}</connection>
+        <developerConnection>${maven.scm.url}</developerConnection>
     </scm>
     <distributionManagement>
         <repository>
             <id>releases</id>
             <name>Internal Releases</name>
-            <url>http://admin:admin123@www.nexus.uturn.bigboat.cloud:8081/repository/maven-releases</url>
+            <url>${nexus.distribution.repository}</url>
         </repository>
     </distributionManagement>
     <repositories>
         <repository>
             <id>nexus-repository</id>
             <name>nexus proxy plugin repo</name>
-            <url>http://www.nexus.uturn.bigboat.cloud:8081/repository/maven-public/</url>
+            <url>${nexus.repository}</url>
         </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
             <id>nexus-plugin-repository</id>
             <name>nexus proxy plugin repo</name>
-            <url>http://www.nexus.uturn.bigboat.cloud:8081/repository/maven-public/</url>
+            <url>${nexus.repository}</url>
         </pluginRepository>
     </pluginRepositories>
 </project>

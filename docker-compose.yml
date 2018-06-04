@@ -2,12 +2,17 @@ version: '2.0'
 
 services:
   backend:
-    image: repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-backend:${version}
+    image: ${docker_registry}/appstarter-backend:${version}
     ports:
       - 8080:8080
+  frontend:
+    image: ${docker_registry}/appstarter-frontend:${version}
+    ports:
+      - 3000:3000
   www:
-    image: repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-frontend:${version}
+    image: ${docker_registry}/appstarter-proxy:${version}
+    environment: 
+      WEB_SERVER_URL_AND_PORT:  "http://frontend:3000"
+      API_SERVER_URL_AND_PORT_AND_PATH: "http://backend:8080"
     ports:
       - 80:80
-    environment:
-      REACT_APP_API: ${backend_api_url}

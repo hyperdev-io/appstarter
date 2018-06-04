@@ -5,13 +5,20 @@ pipeline {
   }
 
   environment {
-    NPM_PATH            = '${HOME}/.npm'
-    M2_PATH             = '${HOME}/.m2'
-    SONAR_PATH          = '${HOME}/.sonar'
-    DASHBOARD_API_KEY   = 'bb87e863c762140078c69dec5c7d36bf'
-    DASHBOARD           = 'uturn.dashboard.bigboat.cloud'
-    APPLICATION_NAME    = 'appstarter'
-    INSTANCE_NAME       = "app-${env.BUILD_NUMBER}"
+    NPM_PATH = '${HOME}/.npm'
+    M2_PATH = '${HOME}/.m2'
+    SONAR_PATH = '${HOME}/.sonar'
+    DASHBOARD_API_KEY = '1ba7bc8eed1d74ff64d857f07df17ad1'
+    DASHBOARD = 'test.dashboard.hyperdev.cloud'
+    APPLICATION_NAME = 'appstarter'
+    INSTANCE_NAME = "app-${env.BUILD_NUMBER}"
+    SONAR_URL = 'http://www.sonarqube.test.hyperdev.cloud:9000'
+    SONAR_QUALITY_GATE_TIMEOUT = '2'
+    SONAR_QUALITY_GATE_TIMEOUT_UNIT = 'MINUTES'
+    DOCKER_REGISTRY = 'repo.docker-registry.test.hyperdev.cloud:5000'
+    MAVEN_SCM_URL = 'scm:git:git@www.gitlab.test.hyperdev.cloud:appstarter/appstarter.git'
+    NEXUS_DISTRIBUTION_REPOSITORY = 'http://admin:admin123@www.nexus.test.hyperdev.cloud:8081/repository/maven-releases'
+    NEXUS_REPOSIROTY = 'http://www.nexus.test.hyperdev.cloud:8081/repository/maven-public/'
   }
   options {
     buildDiscarder(logRotator(numToKeepStr:'10'))
@@ -21,63 +28,162 @@ pipeline {
     stage('Initialize') {
       steps {
         script {
-          sh "docker run --rm -i -v ${env.WORKSPACE}:/work -w /work alpine rm -rf *"
-
           checkout scm
-          sh "echo version=${env.BUILD_NUMBER} > .env"
-          sh 'echo backend_api_url=http://backend.\\\${BIGBOAT_INSTANCE_NAME}.uturn.bigboat.cloud:8080 >> .env'
         }
       }
     }
-    stage('Build backend') {
-      steps {
-        script {
-          wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+    stage('Build') {
+      parallel {
+        stage('Build proxy') {
+          steps {
+            script {
+              wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+                sh """              
+                  docker build -t ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER} ./proxy
+                  docker tag ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY}/appstarter-proxy:latest
+                  docker push ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER}
+                  docker push ${env.DOCKER_REGISTRY}/appstarter-proxy:latest
+                """
+              }
+            }
+          }
+        }
+        stage('Build backend') {
+          agent {
+            docker {
+              image 'maven:3-alpine'
+              args "-v /var/jenkins_home/.m2:/root/.m2"
+            }
+          }
+          steps {
             sh """
-              docker run --rm -i -v $M2_PATH:/root/.m2 -v $WORKSPACE/backend:/work -w /work maven:3-jdk-8-alpine mvn package -DskipTests=true
-              
-              docker build -t repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER} ./backend
-              docker tag repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER} repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-backend:latest
-              docker push repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-backend:${env.BUILD_NUMBER}
-              docker push repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-backend:latest
+              mvn -f backend/pom.xml -B -DskipTests clean package \
+                -Dsonar.host.url=$SONAR_URL \
+                -Dnexus.repository=$NEXUS_REPOSIROTY \
+                -Dnexus.distribution.repository=$NEXUS_DISTRIBUTION_REPOSITORY \
+                -Dmaven.scm.url=$MAVEN_SCM_URL
             """
+            stash name: 'backend-build', includes: '**/target/*'
+          }
+        }
+        stage('Build frontend') {
+          agent {
+            docker {
+              image 'node'
+              args "-v /var/jenkins_home/.npm:/.npm"
+            }
+          }
+          steps {
+            wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+              sh """
+                cd frontend
+                npm i
+                npm run build
+              """
+              stash name: 'frontend-build', includes: '**/build/**/*'
+            }
           }
         }
       }
     }
-    stage('Build frontend') {
+    stage('Test Backend') {
+      agent {
+        docker {
+          image 'maven:3-alpine'
+          args "-v /var/jenkins_home/.m2:/root/.m2"
+        }
+      }
       steps {
-        script {
-          wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-            sh """
-              docker run --rm -i -v $NPM_PATH:/root/.npm -v $WORKSPACE/frontend:/work -w /work node npm i
-              docker run --rm -i -v $NPM_PATH:/root/.npm -v $WORKSPACE/frontend:/work -w /work node npm run build
+        withSonarQubeEnv('SonarQube') {
+          sh """
+            mvn -f backend/pom.xml -Dsonar.branch=\$BRANCH_NAME -B test sonar:sonar \
+              -Dsonar.host.url=$SONAR_URL \
+              -Dnexus.repository=$NEXUS_REPOSIROTY \
+              -Dnexus.distribution.repository=$NEXUS_DISTRIBUTION_REPOSITORY \
+              -Dmaven.scm.url=$MAVEN_SCM_URL
+          """
+        }
+      }
+      post {
+        always {
+          junit 'backend/**/target/surefire-reports/**/*.xml'
+        }
+      }
+    }
+    stage("Backend SonarQube Quality Gate") {
+      steps {
+        timeout(time: env.SONAR_QUALITY_GATE_TIMEOUT as int, unit: env.SONAR_QUALITY_GATE_TIMEOUT_UNIT) {
+          script {
+            def qg = waitForQualityGate() 
+            if (qg.status != 'OK') {
+                error "Pipeline aborted due to quality gate failure: ${qg.status}"
+            }
 
-              docker build -t repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER} ./frontend
-              docker tag repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER} repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-frontend:latest
-              docker push repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-frontend:${env.BUILD_NUMBER}
-              docker push repo.docker-registry.uturn.bigboat.cloud:5000/appstarter-frontend:latest
-            """
+            sh 'rm -f backend/target/sonar/report-task.txt'
           }
         }
       }
     }
-    stage('Quality backend') {
+    stage('Test Frontend') {
+      agent {
+        dockerfile {
+          dir '.jenkins/'
+          args "-v /var/jenkins_home/.npm:/.npm"
+        }
+      }
       steps {
-        script {
-          wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-            sh """
-              docker run --rm -i -v $M2_PATH:/root/.m2 -v $WORKSPACE/backend:/work -w /work --net=host maven:3-jdk-8-alpine mvn test sonar:sonar
-            """
+        wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+          withSonarQubeEnv('SonarQube') {
+            sh '''
+              cd frontend
+              npm i
+              npm run test:ci
+              npm run sonar-scanner -- -Dsonar.branch=$BRANCH_NAME
+              '''
+          }
+        }
+      }
+      post {
+        always {
+          junit 'frontend/reports/**/*-junit.xml'
+        }
+      }
+    }
+    stage("Frontend SonarQube Quality Gate") {
+      steps {
+        timeout(time: env.SONAR_QUALITY_GATE_TIMEOUT as int, unit: env.SONAR_QUALITY_GATE_TIMEOUT_UNIT) {
+          script {
+            def qg = waitForQualityGate() 
+            if (qg.status != 'OK') {
+                error "Pipeline aborted due to quality gate failure: ${qg.status}"
+            }
           }
         }
       }
     }
-    stage('Create complete docker-compose file') {
+    stage('Packaging') {
       steps {
         script {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+            unstash name: 'backend-build'
+            unstash name: 'frontend-build'
             sh """
+              cd backend
+              docker build -t ${env.DOCKER_REGISTRY}/appstarter-backend:${env.BUILD_NUMBER} .
+              docker tag ${env.DOCKER_REGISTRY}/appstarter-backend:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY}/appstarter-backend:latest
+              docker push ${env.DOCKER_REGISTRY}/appstarter-backend:${env.BUILD_NUMBER}
+              docker push ${env.DOCKER_REGISTRY}/appstarter-backend:latest
+
+              cd ../frontend
+              docker build -t ${env.DOCKER_REGISTRY}/appstarter-frontend:${env.BUILD_NUMBER} .
+              docker tag ${env.DOCKER_REGISTRY}/appstarter-frontend:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY}/appstarter-frontend:latest
+              docker push ${env.DOCKER_REGISTRY}/appstarter-frontend:${env.BUILD_NUMBER}
+              docker push ${env.DOCKER_REGISTRY}/appstarter-frontend:latest
+
+              cd ..
+              echo version=${env.BUILD_NUMBER} > .env
+              echo docker_registry=${env.DOCKER_REGISTRY} >> .env
+
               docker-compose config > docker-compose.complete.yml
             """
           }
