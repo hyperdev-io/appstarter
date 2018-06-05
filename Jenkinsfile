@@ -119,7 +119,7 @@ pipeline {
                 error "Pipeline aborted due to quality gate failure: ${qg.status}"
             }
 
-            sh 'rm -f backend/target/sonar/report-task.txt'
+            sh 'rm -f ../**/backend/target/sonar/report-task.txt'
           }
         }
       }
