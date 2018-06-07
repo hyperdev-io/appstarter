@@ -1,0 +1,18 @@
+{
+  "name": "appstarter",
+  "version": "0.0.1",
+  "description": "Sample TestX.io ART",
+  "dependencies": {
+    "testx": "^2.9.1",
+    "testx-jasmine-reporters": "^1.1.1",
+    "testx-standard-objects": "^0.1.1"
+  },
+  "scripts": {
+    "test": "protractor conf.coffee",
+    "test-docker": "docker run --rm -it -u `id -u`:`id -g` -v `pwd`:/work --net=host testx/protractor conf.coffee"
+  },
+  "testx": {
+    "logScript": false,
+    "actionTimeout": 5000
+  }
+}
