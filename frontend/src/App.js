@@ -35,7 +35,7 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload.
         </p>
-        <p>{this.state.greeting}</p>
+        <p><div id="greeting">{this.state.greeting}</div></p>
       </div>
     );
   }
