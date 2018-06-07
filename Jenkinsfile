@@ -34,20 +34,6 @@ pipeline {
     }
     stage('Build') {
       parallel {
-        stage('Build proxy') {
-          steps {
-            script {
-              wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-                sh """              
-                  docker build -t ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER} ./proxy
-                  docker tag ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY}/appstarter-proxy:latest
-                  docker push ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER}
-                  docker push ${env.DOCKER_REGISTRY}/appstarter-proxy:latest
-                """
-              }
-            }
-          }
-        }
         stage('Build backend') {
           agent {
             docker {
@@ -103,11 +89,8 @@ pipeline {
               -Dmaven.scm.url=$MAVEN_SCM_URL
           """
         }
-      }
-      post {
-        always {
-          junit 'backend/**/target/surefire-reports/**/*.xml'
-        }
+
+        junit 'backend/**/target/surefire-reports/**/*.xml'
       }
     }
     stage("Backend SonarQube Quality Gate") {
@@ -119,6 +102,7 @@ pipeline {
                 error "Pipeline aborted due to quality gate failure: ${qg.status}"
             }
 
+            // Clean up report-task before next stage.
             sh 'rm -f ../**/backend/target/sonar/report-task.txt'
           }
         }
@@ -141,10 +125,7 @@ pipeline {
               npm run sonar-scanner -- -Dsonar.branch=$BRANCH_NAME
               '''
           }
-        }
-      }
-      post {
-        always {
+
           junit 'frontend/reports/**/*-junit.xml'
         }
       }
@@ -167,8 +148,15 @@ pipeline {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
             unstash name: 'backend-build'
             unstash name: 'frontend-build'
+
             sh """
-              cd backend
+              cd proxy
+              docker build -t ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER} .
+              docker tag ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY}/appstarter-proxy:latest
+              docker push ${env.DOCKER_REGISTRY}/appstarter-proxy:${env.BUILD_NUMBER}
+              docker push ${env.DOCKER_REGISTRY}/appstarter-proxy:latest
+
+              cd ../backend
               docker build -t ${env.DOCKER_REGISTRY}/appstarter-backend:${env.BUILD_NUMBER} .
               docker tag ${env.DOCKER_REGISTRY}/appstarter-backend:${env.BUILD_NUMBER} ${env.DOCKER_REGISTRY}/appstarter-backend:latest
               docker push ${env.DOCKER_REGISTRY}/appstarter-backend:${env.BUILD_NUMBER}
@@ -200,13 +188,23 @@ pipeline {
         }
       }
     }
+    stage('Run Automated Regressions Tests') {
+      steps {
+        script {
+          wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+            sh "ci/scripts/start-app.sh ${env.WORKSPACE}"
+          }
+        }
+      }
+    }
   }
   post {
     always {
       script {
         echo 'post.always'
         wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-          sh "ci/scripts/stop-app.sh"
+          echo 'skip'
+          // sh "ci/scripts/stop-app.sh"
         }
       }
     }
