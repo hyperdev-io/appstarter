@@ -196,7 +196,8 @@ pipeline {
         script {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
             sh """
-              docker run --rm -t -v ${env.WORKSPACE}/test:/work testx/protractor conf.coffee --baseUrl="http://www.${env.INSTANCE_NAME}.test.hyperdev.cloud/"
+              docker run --entrypoint=/bin/bash --rm -t -v ${env.WORKSPACE}/test:/work testx/protractor \
+                -c 'cd /work && npm i && /protractor.sh conf.coffee --baseUrl="http://www.${env.INSTANCE_NAME}.test.hyperdev.cloud/"'
             """
 
             junit 'test/**/junit/*.xml'
