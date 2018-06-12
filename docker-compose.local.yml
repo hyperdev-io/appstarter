@@ -13,6 +13,8 @@ services:
       context: frontend/
     ports:
       - 3000:3000
+    volumes:
+      - npm-repo:/.npm
   www:
     build: proxy/
     environment: 
@@ -23,3 +25,4 @@ services:
 
 volumes:
    maven-repo:
+   npm-repo:
