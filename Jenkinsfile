@@ -12,7 +12,6 @@ pipeline {
     DASHBOARD = 'test.dashboard.hyperdev.cloud'
     APPLICATION_NAME = 'appstarter'
     INSTANCE_NAME = "app-${env.BUILD_NUMBER}"
-    SONAR_URL = 'http://www.sonarqube.test.hyperdev.cloud:9000'
     SONAR_QUALITY_GATE_TIMEOUT = '2'
     SONAR_QUALITY_GATE_TIMEOUT_UNIT = 'MINUTES'
     DOCKER_REGISTRY = 'repo.docker-registry.test.hyperdev.cloud:5000'
