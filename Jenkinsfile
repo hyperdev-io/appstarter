@@ -84,7 +84,7 @@ pipeline {
           sh """
             mvn -f backend/pom.xml -Dsonar.branch=\$BRANCH_NAME -B test sonar:sonar \
               -Dsonar.host.url=$SONAR_URL \
-              -Dnexus.repository=$NEXUS_REPOSIROTY \
+              -Dnexus.repository=$NEXUS_REPOSITORY \
               -Dnexus.distribution.repository=$NEXUS_DISTRIBUTION_REPOSITORY \
               -Dmaven.scm.url=$MAVEN_SCM_URL
           """
