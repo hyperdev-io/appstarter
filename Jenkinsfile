@@ -8,7 +8,7 @@ pipeline {
     NPM_PATH = '${HOME}/.npm'
     M2_PATH = '${HOME}/.m2'
     SONAR_PATH = '${HOME}/.sonar'
-    DASHBOARD_API_KEY = '1ba7bc8eed1d74ff64d857f07df17ad1'
+    DASHBOARD_API_KEY = '7e4ebec3236ae50e8dfce99ba6fa47a2'
     DASHBOARD = 'test.dashboard.hyperdev.cloud'
     APPLICATION_NAME = 'appstarter'
     INSTANCE_NAME = "app-${env.BUILD_NUMBER}"
@@ -22,6 +22,7 @@ pipeline {
   }
   options {
     buildDiscarder(logRotator(numToKeepStr:'10'))
+    disableConcurrentBuilds()
   }
 
   stages {
@@ -63,6 +64,8 @@ pipeline {
             wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
               sh """
                 cd frontend
+                rm -rf build
+
                 npm i
                 npm run build
               """
@@ -192,7 +195,11 @@ pipeline {
       steps {
         script {
           wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-            sh "ci/scripts/start-app.sh ${env.WORKSPACE}"
+            sh """
+              docker run --rm -t -v ${env.WORKSPACE}/test:/work testx/protractor conf.coffee --baseUrl="http://www.${env.INSTANCE_NAME}.test.hyperdev.cloud/"
+            """
+
+            junit 'test/**/junit/*.xml'
           }
         }
       }
@@ -204,7 +211,7 @@ pipeline {
         echo 'post.always'
         wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
           echo 'skip'
-          // sh "ci/scripts/stop-app.sh"
+          sh "ci/scripts/stop-app.sh"
         }
       }
     }

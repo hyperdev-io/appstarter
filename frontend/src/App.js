@@ -24,7 +24,7 @@ class App extends Component {
   componentDidMount() {
     this.loadGreetingFromServer();
   }
-
+ 
   render() {
     return (
       <div className="App">
