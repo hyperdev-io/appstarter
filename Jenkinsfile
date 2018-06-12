@@ -16,9 +16,10 @@ pipeline {
     SONAR_QUALITY_GATE_TIMEOUT = '2'
     SONAR_QUALITY_GATE_TIMEOUT_UNIT = 'MINUTES'
     DOCKER_REGISTRY = 'repo.docker-registry.test.hyperdev.cloud:5000'
+    SONAR_URL = 'http://www.sonarqube.test.hyperdev.cloud:9000'
     MAVEN_SCM_URL = 'scm:git:git@www.gitlab.test.hyperdev.cloud:appstarter/appstarter.git'
     NEXUS_DISTRIBUTION_REPOSITORY = 'http://admin:admin123@www.nexus.test.hyperdev.cloud:8081/repository/maven-releases'
-    NEXUS_REPOSIROTY = 'http://www.nexus.test.hyperdev.cloud:8081/repository/maven-public/'
+    NEXUS_REPOSITORY = 'http://www.nexus.test.hyperdev.cloud:8081/repository/maven-public/'
   }
   options {
     buildDiscarder(logRotator(numToKeepStr:'10'))
@@ -45,7 +46,7 @@ pipeline {
             sh """
               mvn -f backend/pom.xml -B -DskipTests clean package \
                 -Dsonar.host.url=$SONAR_URL \
-                -Dnexus.repository=$NEXUS_REPOSIROTY \
+                -Dnexus.repository=$NEXUS_REPOSITORY \
                 -Dnexus.distribution.repository=$NEXUS_DISTRIBUTION_REPOSITORY \
                 -Dmaven.scm.url=$MAVEN_SCM_URL
             """
