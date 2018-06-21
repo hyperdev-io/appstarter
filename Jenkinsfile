@@ -211,7 +211,6 @@ pipeline {
       script {
         echo 'post.always'
         wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-          echo 'skip'
           sh "ci/scripts/stop-app.sh"
         }
       }
