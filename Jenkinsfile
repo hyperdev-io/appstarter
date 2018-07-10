@@ -168,7 +168,7 @@ pipeline {
               
               docker-compose config > docker-compose.incomplete.yml
               cat docker-compose.incomplete.yml
-              cat docker-compose.incomplete.yml | sed 's/\\$\\$/\\$/g' > docker-compose.complete.yml
+              cat docker-compose.incomplete.yml | sed 's/\\\$\\\$/\\\$/g' > docker-compose.complete.yml
 
               cat docker-compose.complete.yml
             """
