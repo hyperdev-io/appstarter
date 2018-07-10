@@ -167,40 +167,37 @@ pipeline {
               rm -f docker-compose.complete.yml
               
               docker-compose config > docker-compose.incomplete.yml
-              cat docker-compose.incomplete.yml
               cat docker-compose.incomplete.yml | sed 's/\\\$\\\$/\\\$/g' > docker-compose.complete.yml
-
-              cat docker-compose.complete.yml
             """
           }
         }
       }
     }
-    // stage('Start App') {
-    //   steps {
-    //     script {
-    //       echo 'start app'
-    //       wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-    //         sh "ci/scripts/start-app.sh ${env.WORKSPACE}"
-    //       }
-    //     }
-    //   }
-    // }
-    // stage('Run Automated Regressions Tests') {
-    //   steps {
-    //     script {
-    //       wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-    //         sh """
-    //           set +e
-    //           docker run --entrypoint=/bin/bash --rm -t -v ${env.WORKSPACE}/test:/work testx/protractor \
-    //             -c 'cd /work && npm i && /protractor.sh conf.coffee --baseUrl="http://www.${env.INSTANCE_NAME}.test.hyperdev.cloud/"' || true
-    //         """
+    stage('Start App') {
+      steps {
+        script {
+          echo 'start app'
+          wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+            sh "ci/scripts/start-app.sh ${env.WORKSPACE}"
+          }
+        }
+      }
+    }
+    stage('Run Automated Regressions Tests') {
+      steps {
+        script {
+          wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+            sh """
+              set +e
+              docker run --entrypoint=/bin/bash --rm -t -v ${env.WORKSPACE}/test:/work testx/protractor \
+                -c 'cd /work && npm i && /protractor.sh conf.coffee --baseUrl="http://www.${env.INSTANCE_NAME}.test.hyperdev.cloud/"' || true
+            """
 
-    //         junit 'test/**/junit/*.xml'
-    //       }
-    //     }
-    //   }
-    // }
+            junit 'test/**/junit/*.xml'
+          }
+        }
+      }
+    }
   }
   post {
     always {
