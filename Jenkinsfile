@@ -69,76 +69,76 @@ pipeline {
         }
       }
     }
-    // stage('Test Backend') {
-    //   agent {
-    //     docker {
-    //       image 'maven:3-alpine'
-    //       args "-v /var/jenkins_home/.m2:/root/.m2"
-    //     }
-    //   }
-    //   steps {
-    //     withSonarQubeEnv('SonarQube') {
-    //       sh """
-    //         mvn -f backend/pom.xml -Dsonar.branch=\$BRANCH_NAME -B test sonar:sonar \
-    //           -Dsonar.host.url=$SONAR_URL \
-    //           -Dnexus.repository=$NEXUS_REPOSITORY \
-    //           -Dnexus.distribution.repository=$NEXUS_DISTRIBUTION_REPOSITORY \
-    //           -Dmaven.scm.url=$MAVEN_SCM_URL
-    //       """
-    //     }
+    stage('Test Backend') {
+      agent {
+        docker {
+          image 'maven:3-alpine'
+          args "-v /var/jenkins_home/.m2:/root/.m2"
+        }
+      }
+      steps {
+        withSonarQubeEnv('SonarQube') {
+          sh """
+            mvn -f backend/pom.xml -Dsonar.branch=\$BRANCH_NAME -B test sonar:sonar \
+              -Dsonar.host.url=$SONAR_URL \
+              -Dnexus.repository=$NEXUS_REPOSITORY \
+              -Dnexus.distribution.repository=$NEXUS_DISTRIBUTION_REPOSITORY \
+              -Dmaven.scm.url=$MAVEN_SCM_URL
+          """
+        }
 
-    //     junit 'backend/**/target/surefire-reports/**/*.xml'
-    //   }
-    // }
-    // stage("Backend SonarQube Quality Gate") {
-    //   steps {
-    //     timeout(time: env.SONAR_QUALITY_GATE_TIMEOUT as int, unit: env.SONAR_QUALITY_GATE_TIMEOUT_UNIT) {
-    //       script {
-    //         def qg = waitForQualityGate() 
-    //         if (qg.status != 'OK') {
-    //             error "Pipeline aborted due to quality gate failure: ${qg.status}"
-    //         }
+        junit 'backend/**/target/surefire-reports/**/*.xml'
+      }
+    }
+    stage("Backend SonarQube Quality Gate") {
+      steps {
+        timeout(time: env.SONAR_QUALITY_GATE_TIMEOUT as int, unit: env.SONAR_QUALITY_GATE_TIMEOUT_UNIT) {
+          script {
+            def qg = waitForQualityGate() 
+            if (qg.status != 'OK') {
+                error "Pipeline aborted due to quality gate failure: ${qg.status}"
+            }
 
-    //         // Clean up report-task before next stage.
-    //         sh 'rm -f ../**/backend/target/sonar/report-task.txt'
-    //       }
-    //     }
-    //   }
-    // }
-    // stage('Test Frontend') {
-    //   agent {
-    //     dockerfile {
-    //       dir '.jenkins/'
-    //       args "-v /var/jenkins_home/.npm:/.npm"
-    //     }
-    //   }
-    //   steps {
-    //     wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
-    //       withSonarQubeEnv('SonarQube') {
-    //         sh '''
-    //           cd frontend
-    //           npm i
-    //           npm run test:ci
-    //           npm run sonar-scanner -- -Dsonar.branch=$BRANCH_NAME
-    //           '''
-    //       }
+            // Clean up report-task before next stage.
+            sh 'rm -f ../**/backend/target/sonar/report-task.txt'
+          }
+        }
+      }
+    }
+    stage('Test Frontend') {
+      agent {
+        dockerfile {
+          dir '.jenkins/'
+          args "-v /var/jenkins_home/.npm:/.npm"
+        }
+      }
+      steps {
+        wrap([$class: 'AnsiColorBuildWrapper', 'colorMapName': 'XTerm']) {
+          withSonarQubeEnv('SonarQube') {
+            sh '''
+              cd frontend
+              npm i
+              npm run test:ci
+              npm run sonar-scanner -- -Dsonar.branch=$BRANCH_NAME
+              '''
+          }
 
-    //       junit 'frontend/reports/**/*-junit.xml'
-    //     }
-    //   }
-    // }
-    // stage("Frontend SonarQube Quality Gate") {
-    //   steps {
-    //     timeout(time: env.SONAR_QUALITY_GATE_TIMEOUT as int, unit: env.SONAR_QUALITY_GATE_TIMEOUT_UNIT) {
-    //       script {
-    //         def qg = waitForQualityGate() 
-    //         if (qg.status != 'OK') {
-    //             error "Pipeline aborted due to quality gate failure: ${qg.status}"
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+          junit 'frontend/reports/**/*-junit.xml'
+        }
+      }
+    }
+    stage("Frontend SonarQube Quality Gate") {
+      steps {
+        timeout(time: env.SONAR_QUALITY_GATE_TIMEOUT as int, unit: env.SONAR_QUALITY_GATE_TIMEOUT_UNIT) {
+          script {
+            def qg = waitForQualityGate() 
+            if (qg.status != 'OK') {
+                error "Pipeline aborted due to quality gate failure: ${qg.status}"
+            }
+          }
+        }
+      }
+    }
     stage('Packaging') {
       steps {
         script {
