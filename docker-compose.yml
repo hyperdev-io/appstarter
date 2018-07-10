@@ -1,18 +1,30 @@
-version: '2.0'
+version: '3'
 
 services:
   backend:
     image: ${docker_registry}/appstarter-backend:${version}
     ports:
       - 8080:8080
+    deploy:
+      resources:
+        limits:
+          memory: 500M
   frontend:
     image: ${docker_registry}/appstarter-frontend:${version}
     ports:
       - 3000:3000
+    deploy:
+      resources:
+        limits:
+          memory: 50M
   www:
     image: ${docker_registry}/appstarter-proxy:${version}
     environment: 
-      WEB_SERVER_URL_AND_PORT:  "http://frontend:3000"
-      API_SERVER_URL_AND_PORT_AND_PATH: "http://backend:8080"
+      WEB_SERVER_URL_AND_PORT:  "http://frontend.$${BIGBOAT_INSTANCE_NAME}.test.hyperdev.cloud:3000"
+      API_SERVER_URL_AND_PORT_AND_PATH: "http://backend.$${BIGBOAT_INSTANCE_NAME}.test.hyperdev.cloud:8080"
     ports:
       - 80:80
+    deploy:
+      resources:
+        limits:
+          memory: 10M
