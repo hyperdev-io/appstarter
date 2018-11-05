@@ -20,8 +20,8 @@ services:
   www:
     image: ${docker_registry}/appstarter-proxy:${version}
     environment: 
-      WEB_SERVER_URL_AND_PORT:  "http://frontend.$${BIGBOAT_INSTANCE_NAME}.test.hyperdev.cloud:3000"
-      API_SERVER_URL_AND_PORT_AND_PATH: "http://backend.$${BIGBOAT_INSTANCE_NAME}.test.hyperdev.cloud:8080"
+      WEB_SERVER_URL_AND_PORT:  "http://frontend.$${HYPERDEV_INSTANCE_NAME}.test.hyperdev.cloud:3000"
+      API_SERVER_URL_AND_PORT_AND_PATH: "http://backend.$${HYPERDEV_INSTANCE_NAME}.test.hyperdev.cloud:8080"
     ports:
       - 80:80
     deploy:
