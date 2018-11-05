@@ -16,7 +16,7 @@
     "eject": "react-scripts eject"
   },
   "devDependencies": {
-    "serve": "^6.4.3",
+    "serve": "^7.0.0",
     "jest": "^21.2.1",
     "jest-junit": "^3.4.1",
     "jest-sonar-reporter": "^1.3.0",
